@@ -1,3 +1,3 @@
-# hastag_analysis
+# hashtag_analysis
 
 Copyright (c) 2019, Breno Gomes Cardoso
