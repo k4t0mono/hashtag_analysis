@@ -59,9 +59,6 @@ if __name__ == "__main__":
                 retweets_st.append(s)
             else:
                 tweets.append(tweet_ctrl.new_tweet(s))
-            
-            if s.is_quote_status:
-                qt += 1
         
         for us in chunkIt(list(users.items()), 5):
             us = [ x[1] for x in us ]

@@ -14,7 +14,9 @@ class Tweet(Base):
     created_at = Column(DateTime, nullable=False)
 
     is_quote = Column(Boolean, default=False)
-    is_reply = Column(Boolean, default=False)
+    in_reply = Column(Integer, nullable=True)
+    mentions = Column(Integer, default=0)
+    hashtags = Column(Integer, default=0)
 
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
