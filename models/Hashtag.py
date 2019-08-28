@@ -5,4 +5,4 @@ from main import Base
 class Hashtag(Base):
     __tablename__ = 'hashtag'
 
-    name = Column(String(150), nullable=False)
+    name = Column(String(150), primary_key=True)

@@ -41,5 +41,5 @@ class HasHastag(Base):
     tweet_id = Column(Integer, ForeignKey('tweet.id'), primary_key=True)
     tweet = relationship(Tweet)
 
-    hashtag_id = Column(Integer, ForeignKey('hashtag.id'), primary_key=True)
+    hashtag_name = Column(Integer, ForeignKey('hashtag.name'), primary_key=True)
     hashtag = relationship(Hashtag)

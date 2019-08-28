@@ -17,6 +17,19 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+
+def chunkIt(seq, num):
+    avg = len(seq) / float(num)
+    out = []
+    last = 0.0
+
+    while last < len(seq):
+        out.append(seq[int(last):int(last + avg)])
+        last += avg
+
+    return out
+
+
 if __name__ == "__main__":
     from utils import get_tweepy_api
     from ctrl import *
@@ -26,10 +39,18 @@ if __name__ == "__main__":
     user_ctrl = User_Ctrl()
     tweet_ctrl = Tweet_Ctrl()
 
-    # user = User(id=123123, screen_name='k4t0mono', created_at=datetime.datetime.now())
-    # session.add(user)
-    # session.commit()
-
-    status = api.get_status(1166190484479512576)
-    t = tweet_ctrl.new_tweet(status)
-    tweet_ctrl.add_tweet(t)
+    users = {}
+    tweets = []
+    for s in api.search('#panelaço', count=100):
+        users[s.user.id] = user_ctrl.new_user(s.user)
+        tweets.append(tweet_ctrl.new_tweet(s))
+    
+    
+    for us in chunkIt(list(users.items()), 5):
+        us = [ x[1] for x in us ]
+        user_ctrl.add_users(us)
+        logger.info("Added {} users".format(len(us)))
+    
+    for ts in chunkIt(tweets, 5):
+        tweet_ctrl.add_tweets(ts)
+        logger.info("Added {} tweets".format(len(ts)))

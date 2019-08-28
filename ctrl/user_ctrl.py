@@ -1,19 +1,25 @@
 from models import User
-from main import session
+from main import session, logger
 
 
 class User_Ctrl():
 
-    def new_user(self, status):
+    def new_user(self, user_):
         return User(
-            id=status.id,
-            screen_name=status.screen_name,
-            created_at=status.created_at,
+            id=user_.id,
+            screen_name=user_.screen_name,
+            created_at=user_.created_at,
         )
 
     def add_user(self, user):
-        session.add(user)
-        session.commit()
+        try:
+            session.add(user)
+            session.commit()
+        except Exception as e:
+            logger.debug(e)
+            session.rollback()
+        else:
+            logger.info("Added user {}:{}".format(user.id, user.screen_name))
 
     def add_users(self, user_list):
         for user in user_list:
