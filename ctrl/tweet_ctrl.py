@@ -12,7 +12,7 @@ class Tweet_Ctrl():
         # user = self.user_ctrl.get_user(status.user.id)
         return Tweet(
             id=status.id,
-            text=status.text,
+            text=status.full_text,
             favorites=status.favorite_count,
             retweets=status.retweet_count,
             created_at=status.created_at,

@@ -42,8 +42,8 @@ if __name__ == "__main__":
     retweet_ctrl = Retweet_Ctrl()
     hashtag_ctrl = Hashtag_Ctrl()
 
-    
-    for pg in tweepy.Cursor(api.search, q="#panelaco", count=100,).pages(1):
+    qt = 0
+    for pg in tweepy.Cursor(api.search, q="#panelaco", count=100, tweet_mode="extended").pages(1):
 
     # pg = api.user_timeline('k4t0mono', count=100)
         users = {}
@@ -59,7 +59,9 @@ if __name__ == "__main__":
                 retweets_st.append(s)
             else:
                 tweets.append(tweet_ctrl.new_tweet(s))
-                hashtags.extend(hashtag_ctrl.new_hashtags(s))
+            
+            if s.is_quote_status:
+                qt += 1
         
         for us in chunkIt(list(users.items()), 5):
             us = [ x[1] for x in us ]
@@ -77,9 +79,14 @@ if __name__ == "__main__":
         for rt in chunkIt(retweets, 5):
             retweet_ctrl.add_retweets(rt)
             logger.info("Added {} retweets".format(len(rt)))
-        
+
+        for s in pg:
+            if not hasattr(s, 'retweeted_status'):
+                hashtags.extend(hashtag_ctrl.new_hashtags(s))
+
         for ht in chunkIt(hashtags, 5):
             hashtag_ctrl.add_hashtags(ht)
             logger.info("Added {} hashtags".format(len(ht)))
 
         logger.info('page done')
+        print(qt)
