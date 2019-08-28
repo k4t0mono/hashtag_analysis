@@ -6,14 +6,17 @@ from .Tweet import Tweet
 from .Hashtag import Hashtag
 
 
-class Retweeted(Base):
+class Retweet(Base):
     __tablename__ = 'retweet'
 
-    retweet_id = Column(Integer, ForeignKey('tweet.id'), primary_key=True)
-    retweet = relationship(Tweet, foreign_keys=[retweet_id])
+    id = Column(Integer, ForeignKey('tweet.id'), primary_key=True)
+    created_at = Column(DateTime, nullable=False)
 
     original_tweet_id = Column(Integer, ForeignKey('tweet.id'))
     original_tweet = relationship(Tweet, foreign_keys=[original_tweet_id])
+
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
 
 class Mention(Base):
