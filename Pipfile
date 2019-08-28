@@ -7,7 +7,9 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
-gremlinpython = "*"
+tweepy = ""
+sqlalchemy = "*"
+pymysql = "*"
 
 [requires]
 python_version = "3.7"
