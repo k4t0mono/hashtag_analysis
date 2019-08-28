@@ -20,3 +20,6 @@ class User_Ctrl():
             session.add(user)
         
         session.commit()
+
+    def get_user(self, id_):
+        return session.query(User).filter(User.id == id_).one()

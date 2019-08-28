@@ -17,7 +17,6 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-
 if __name__ == "__main__":
     from utils import get_tweepy_api
     from ctrl import *
@@ -25,10 +24,12 @@ if __name__ == "__main__":
     api = get_tweepy_api()
     logger.info('yo')
     user_ctrl = User_Ctrl()
+    tweet_ctrl = Tweet_Ctrl()
 
     # user = User(id=123123, screen_name='k4t0mono', created_at=datetime.datetime.now())
     # session.add(user)
     # session.commit()
 
     status = api.get_status(1166190484479512576)
-    user_ctrl.add_user(user_ctrl.new_user(status.user))
+    t = tweet_ctrl.new_tweet(status)
+    tweet_ctrl.add_tweet(t)

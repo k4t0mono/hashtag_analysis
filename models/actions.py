@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from main import Base
 from .User import User
 from .Tweet import Tweet
+from .Hashtag import Hashtag
 
 
 class Retweeted(Base):
@@ -33,3 +34,12 @@ class Reply(Base):
 
     replyee_id = Column(Integer, ForeignKey('tweet.id'), primary_key=True)
     replyee = relationship(Tweet, foreign_keys=[replyee_id])
+
+class HasHastag(Base):
+    __tablename__ = 'HasHastag'
+
+    tweet_id = Column(Integer, ForeignKey('tweet.id'), primary_key=True)
+    tweet = relationship(Tweet)
+
+    hashtag_id = Column(Integer, ForeignKey('hashtag.id'), primary_key=True)
+    hashtag = relationship(Hashtag)
