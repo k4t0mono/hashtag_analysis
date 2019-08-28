@@ -31,6 +31,15 @@ class Tweet_Ctrl():
 
     def add_tweets(self, tweet_list):
         for tweet in tweet_list:
+            if self.get_tweet(tweet.id):
+                continue
+
             session.add(tweet)
         
         session.commit()
+    
+    def get_tweet(self, id_):
+        try:
+            return session.query(Tweet).filter(Tweet.id == id_).one()
+        except:
+            return None

@@ -23,9 +23,15 @@ class User_Ctrl():
 
     def add_users(self, user_list):
         for user in user_list:
+            if self.get_user(user.id):
+                continue
+
             session.add(user)
         
         session.commit()
 
     def get_user(self, id_):
-        return session.query(User).filter(User.id == id_).one()
+        try:
+            return session.query(User).filter(User.id == id_).one()
+        except:
+            return None

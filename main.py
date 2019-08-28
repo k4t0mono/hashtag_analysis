@@ -2,6 +2,7 @@ import pickle
 import logging
 import logging.config
 import datetime
+import tweepy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -39,18 +40,22 @@ if __name__ == "__main__":
     user_ctrl = User_Ctrl()
     tweet_ctrl = Tweet_Ctrl()
 
-    users = {}
-    tweets = []
-    for s in api.search('#panelaço', count=100):
-        users[s.user.id] = user_ctrl.new_user(s.user)
-        tweets.append(tweet_ctrl.new_tweet(s))
     
-    
-    for us in chunkIt(list(users.items()), 5):
-        us = [ x[1] for x in us ]
-        user_ctrl.add_users(us)
-        logger.info("Added {} users".format(len(us)))
-    
-    for ts in chunkIt(tweets, 5):
-        tweet_ctrl.add_tweets(ts)
-        logger.info("Added {} tweets".format(len(ts)))
+    for pg in tweepy.Cursor(api.search, q="#panelaco", count=100,).pages():
+        users = {}
+        tweets = []
+
+        for s in pg:
+            users[s.user.id] = user_ctrl.new_user(s.user)
+            tweets.append(tweet_ctrl.new_tweet(s))
+        
+        
+        for us in chunkIt(list(users.items()), 5):
+            us = [ x[1] for x in us ]
+            user_ctrl.add_users(us)
+            logger.info("Added {} users".format(len(us)))
+        
+        for ts in chunkIt(tweets, 5):
+            tweet_ctrl.add_tweets(ts)
+            logger.info("Added {} tweets".format(len(ts)))
+        logger.info('page done')
