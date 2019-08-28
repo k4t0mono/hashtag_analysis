@@ -11,7 +11,7 @@ class Hashtag_Ctrl():
     def new_hashtags(self, status):
         t = self.tweet_ctrl.get_tweet(status.id)
 
-        return [ Hashtag(tweet=t, hashtag=ht) for ht in status.entities['hashtags'] ]
+        return [ Hashtag(tweet=t, hashtag=ht['text']) for ht in status.entities['hashtags'] ]
 
     def add_hashtag(self, hashtag):
         try:
@@ -21,19 +21,18 @@ class Hashtag_Ctrl():
             logger.debug(e)
             session.rollback()
         else:
-            logger.info("Added hashtag {}:{}".format(hashtag.id, hashtag.screen_name))
+            logger.info("Added hashtag {}:{}".format(hashtag.hashtag, hashtag.tweet_id))
 
     def add_hashtags(self, hashtag_list):
         for hashtag in hashtag_list:
-            if self.get_hashtag(hashtag.id):
+            if self.get_hashtag(hashtag.hashtag):
                 continue
-
             session.add(hashtag)
         
         session.commit()
 
-    def get_hashtag(self, id_):
+    def get_hashtag(self, hashtag):
         try:
-            return session.query(Hashtag).filter(Hashtag.id == id_).one()
+            return session.query(Hashtag).filter(Hashtag.hashtag == hashtag).one()
         except:
             return None
