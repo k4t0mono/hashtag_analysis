@@ -14,7 +14,7 @@ class Tweet(Base):
     created_at = Column(DateTime, nullable=False)
 
     is_quote = Column(Boolean, default=False)
-    in_reply = Column(Integer, nullable=True)
+    in_reply = Column(String(128), nullable=True)
     mentions = Column(Integer, default=0)
     hashtags = Column(Integer, default=0)
 

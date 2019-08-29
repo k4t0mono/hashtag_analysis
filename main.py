@@ -13,7 +13,7 @@ logging.config.fileConfig(fname='log.conf')
 logger = logging.getLogger('dev')
 
 Base = declarative_base()
-engine = create_engine(DB_URI)
+engine = create_engine('sqlite:///a.sqlite3')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
