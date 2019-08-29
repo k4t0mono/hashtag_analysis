@@ -7,7 +7,7 @@ from .User import User
 class Tweet(Base):
     __tablename__ = 'tweet'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String(128), primary_key=True)
     text = Column(String(280), nullable=False)
     favorites = Column(Integer, nullable=False)
     retweets = Column(Integer, nullable=False)
@@ -18,5 +18,5 @@ class Tweet(Base):
     mentions = Column(Integer, default=0)
     hashtags = Column(Integer, default=0)
 
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(String(128), ForeignKey('user.id'))
     user = relationship(User)

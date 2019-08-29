@@ -11,3 +11,5 @@ def get_tweepy_api():
     auth.set_access_token(HA_AT, HA_TS)
 
     return tweepy.API(auth, wait_on_rate_limit=True)
+
+DB_URI = os.environ.get('DB_URI')

@@ -6,14 +6,14 @@ import tweepy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from utils import get_tweepy_api
+from utils import get_tweepy_api, DB_URI
 
 
 logging.config.fileConfig(fname='log.conf')
 logger = logging.getLogger('dev')
 
 Base = declarative_base()
-engine = create_engine('sqlite:///db.sqlite3')
+engine = create_engine(DB_URI)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -42,10 +42,12 @@ if __name__ == "__main__":
     retweet_ctrl = Retweet_Ctrl()
     hashtag_ctrl = Hashtag_Ctrl()
 
-    qt = 0
-    for pg in tweepy.Cursor(api.search, q="#panelaco", count=100, tweet_mode="extended").pages(1):
+    hashtag = input('Hashtag to download: #')
+    q = "#{}".format(hashtag)
+    logger.info('q: {}'.format(q))
 
-    # pg = api.user_timeline('k4t0mono', count=100)
+    qt = 0
+    for pg in tweepy.Cursor(api.search, q=q, count=100, tweet_mode="extended").pages():
         users = {}
         tweets = []
         retweets_st = []
@@ -86,4 +88,3 @@ if __name__ == "__main__":
             logger.info("Added {} hashtags".format(len(ht)))
 
         logger.info('page done')
-        print(qt)
