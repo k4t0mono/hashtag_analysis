@@ -8,7 +8,7 @@ class Tweet(Base):
     __tablename__ = 'tweet'
 
     id = Column(String(128), primary_key=True)
-    text = Column(String(280), nullable=False)
+    text = Column(String(500), nullable=False)
     favorites = Column(Integer, nullable=False)
     retweets = Column(Integer, nullable=False)
     created_at = Column(DateTime, nullable=False)

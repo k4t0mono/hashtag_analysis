@@ -1,0 +1,148 @@
+diff --git a/ctrl/tweet_ctrl.py b/ctrl/tweet_ctrl.py
+index a232b00..aaea7fa 100644
+--- a/ctrl/tweet_ctrl.py
++++ b/ctrl/tweet_ctrl.py
+@@ -9,15 +9,13 @@ class Tweet_Ctrl():
+         self.user_ctrl = User_Ctrl()
+ 
+     def new_tweet(self, status):
+-        u = self.user_ctrl.get_user(status.user.id)
+-
+         return Tweet(
+             id=status.id,
+             text=status.full_text,
+             favorites=status.favorite_count,
+             retweets=status.retweet_count,
+             created_at=status.created_at,
+-            user=u,
++            user_id=status.user.id,
+             is_quote=status.is_quote_status,
+             in_reply=status.in_reply_to_status_id,
+             mentions=len(status.entities['user_mentions']),
+@@ -38,6 +36,8 @@ class Tweet_Ctrl():
+         for tweet in tweet_list:
+             if self.get_tweet(tweet.id):
+                 continue
++            if len(tweet.text) > 500:
++                continue
+ 
+             session.add(tweet)
+         
+@@ -47,4 +47,4 @@ class Tweet_Ctrl():
+         try:
+             return session.query(Tweet).filter(Tweet.id == id_).one()
+         except:
+-            return None
+\ No newline at end of file
++            return None
+diff --git a/log.conf b/log.conf
+index e5fce6b..5b08f4a 100644
+--- a/log.conf
++++ b/log.conf
+@@ -12,7 +12,7 @@ level=INFO
+ handlers=consoleHandler
+ 
+ [logger_dev]
+-level=INFO
++level=DEBUG
+ handlers=consoleHandler,fileHandler
+ qualname=dev
+ propagate=0
+@@ -33,4 +33,4 @@ args=('log','w')
+ format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
+ 
+ [formatter_simple]
+-format=%(asctime)s - %(message)s
+\ No newline at end of file
++format=%(asctime)s - %(message)s
+diff --git a/main.py b/main.py
+index cfe38e4..7e5d30d 100644
+--- a/main.py
++++ b/main.py
+@@ -13,7 +13,7 @@ logging.config.fileConfig(fname='log.conf')
+ logger = logging.getLogger('dev')
+ 
+ Base = declarative_base()
+-engine = create_engine('sqlite:///a.sqlite3')
++engine = create_engine(DB_URI)
+ Base.metadata.bind = engine
+ DBSession = sessionmaker(bind=engine)
+ session = DBSession()
+@@ -46,7 +46,7 @@ if __name__ == "__main__":
+     q = "#{}".format(hashtag)
+     logger.info('q: {}'.format(q))
+ 
+-    qt = 0
++    pg_n = 0
+     for pg in tweepy.Cursor(api.search, q=q, count=100, tweet_mode="extended").pages():
+         users = {}
+         tweets = []
+@@ -87,4 +87,5 @@ if __name__ == "__main__":
+             hashtag_ctrl.add_hashtags(ht)
+             logger.info("Added {} hashtags".format(len(ht)))
+ 
+-        logger.info('page done')
+\ No newline at end of file
++        logger.info('page {} done'.format(pg_n))
++        pg_n += 1
+diff --git a/models/Tweet.py b/models/Tweet.py
+index 78edd3b..05d7128 100644
+--- a/models/Tweet.py
++++ b/models/Tweet.py
+@@ -8,7 +8,7 @@ class Tweet(Base):
+     __tablename__ = 'tweet'
+ 
+     id = Column(String(128), primary_key=True)
+-    text = Column(String(280), nullable=False)
++    text = Column(String(500), nullable=False)
+     favorites = Column(Integer, nullable=False)
+     retweets = Column(Integer, nullable=False)
+     created_at = Column(DateTime, nullable=False)
+@@ -19,4 +19,4 @@ class Tweet(Base):
+     hashtags = Column(Integer, default=0)
+ 
+     user_id = Column(String(128), ForeignKey('user.id'))
+-    user = relationship(User)
+\ No newline at end of file
++    user = relationship(User)
+diff --git a/models/actions.py b/models/actions.py
+index 9f60970..f199bbc 100644
+--- a/models/actions.py
++++ b/models/actions.py
+@@ -8,7 +8,7 @@ from .Tweet import Tweet
+ class Retweet(Base):
+     __tablename__ = 'retweet'
+ 
+-    id = Column(String(128), ForeignKey('tweet.id'), primary_key=True)
++    id = Column(String(128), primary_key=True)
+     created_at = Column(DateTime, nullable=False)
+ 
+     original_tweet_id = Column(String(128), ForeignKey('tweet.id'))
+@@ -43,4 +43,4 @@ class Hashtag(Base):
+     tweet_id = Column(String(128), ForeignKey('tweet.id'), primary_key=True)
+     tweet = relationship(Tweet)
+ 
+-    hashtag = Column(String(140), primary_key=True)
+\ No newline at end of file
++    hashtag = Column(String(140), primary_key=True)
+diff --git a/run b/run
+new file mode 100644
+index 0000000..f11e1f4
+--- /dev/null
++++ b/run
+@@ -0,0 +1,2 @@
++hta_05
++BolsonaroImbativel
+diff --git a/utils/config.py b/utils/config.py
+index d880c67..6d9413d 100644
+--- a/utils/config.py
++++ b/utils/config.py
+@@ -12,5 +12,5 @@ def get_tweepy_api():
+ 
+     return tweepy.API(auth, wait_on_rate_limit=True)
+ 
+-database = os.environ.get('DB_DATABASE')
+-DB_URI = '{}/{}?charset=utf8mb4'.format(os.environ.get('DB_URI'), database)
+\ No newline at end of file
++database = input("Database: /")
++DB_URI = '{}/{}?charset=utf8mb4'.format(os.environ.get('DB_URI'), database)

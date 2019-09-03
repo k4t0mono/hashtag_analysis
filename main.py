@@ -13,7 +13,7 @@ logging.config.fileConfig(fname='log.conf')
 logger = logging.getLogger('dev')
 
 Base = declarative_base()
-engine = create_engine('sqlite:///a.sqlite3')
+engine = create_engine(DB_URI)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     q = "#{}".format(hashtag)
     logger.info('q: {}'.format(q))
 
-    qt = 0
+    pg_n = 0
     for pg in tweepy.Cursor(api.search, q=q, count=100, tweet_mode="extended").pages():
         users = {}
         tweets = []
@@ -87,4 +87,5 @@ if __name__ == "__main__":
             hashtag_ctrl.add_hashtags(ht)
             logger.info("Added {} hashtags".format(len(ht)))
 
-        logger.info('page done')
+        logger.info('page {} done'.format(pg_n))
+        pg_n += 1

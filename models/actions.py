@@ -8,7 +8,7 @@ from .Tweet import Tweet
 class Retweet(Base):
     __tablename__ = 'retweet'
 
-    id = Column(String(128), ForeignKey('tweet.id'), primary_key=True)
+    id = Column(String(128), primary_key=True)
     created_at = Column(DateTime, nullable=False)
 
     original_tweet_id = Column(String(128), ForeignKey('tweet.id'))
