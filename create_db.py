@@ -10,6 +10,5 @@ session = DBSession()
 
 session.execute('drop database if exists {};'.format(database))
 session.execute('create database {} CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ;'.format(database))
-# session.execute('ALTER DATABASE {} CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;')
 
 Base.metadata.create_all(engine)

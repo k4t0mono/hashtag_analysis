@@ -41,7 +41,14 @@ class Retweet_Ctrl():
 
             session.add(retweet)
         
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            logger.debug(e)
+            session.rollback()
+
+            for rt in retweet_list:
+                self.add_retweet(rt)
     
     def get_retweet(self, id_):
         try:
