@@ -13,7 +13,8 @@ logging.config.fileConfig(fname='log.conf')
 logger = logging.getLogger('dev')
 
 Base = declarative_base()
-engine = create_engine(DB_URI)
+database = input("Database: /")
+engine = create_engine(DB_URI.replace('uwu', database))
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
