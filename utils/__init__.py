@@ -1,1 +1,1 @@
-from .config import get_tweepy_api, DB_URI
+from .config import get_tweepy_api, get_db_uri

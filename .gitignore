@@ -2,6 +2,8 @@ playground/
 *.sqlite3
 log
 run
+.vscode
+hashtags
 
 # Created by https://www.gitignore.io/api/python,visualstudiocode,jupyternotebooks
 # Edit at https://www.gitignore.io/?templates=python,visualstudiocode,jupyternotebooks

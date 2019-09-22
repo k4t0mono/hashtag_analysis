@@ -12,4 +12,6 @@ def get_tweepy_api():
 
     return tweepy.API(auth, wait_on_rate_limit=True)
 
-DB_URI = '{}/uwu?charset=utf8mb4'.format(os.environ.get('DB_URI'))
+
+def get_db_uri(database):
+    return '{}/{}?charset=utf8mb4'.format(os.environ.get('DB_URI'), database)
