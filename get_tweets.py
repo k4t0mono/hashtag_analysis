@@ -4,10 +4,7 @@ import logging.config
 import datetime
 import tweepy
 from sys import argv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from utils import get_tweepy_api, get_db_uri
+from utils import get_tweepy_api, get_db_uri, get_connection
 
 
 logging.config.fileConfig(
@@ -16,13 +13,7 @@ logging.config.fileConfig(
 )
 logger = logging.getLogger('dev')
 
-Base = declarative_base()
-database = argv[1]
-engine = create_engine(get_db_uri(database))
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
-
+Base, session = get_connection(argv[1])
 
 def chunkIt(seq, num):
     avg = len(seq) / float(num)

@@ -1,5 +1,9 @@
 import os
 import tweepy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
 
 def get_tweepy_api():
     HA_CK = os.environ.get('HA_CK')
@@ -15,3 +19,12 @@ def get_tweepy_api():
 
 def get_db_uri(database):
     return '{}/{}?charset=utf8mb4'.format(os.environ.get('DB_URI'), database)
+
+def get_connection(database):
+    base = declarative_base()
+    engine = create_engine(get_db_uri(database))
+    base.metadata.bind = engine
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+
+    return (base, session)

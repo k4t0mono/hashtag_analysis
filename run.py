@@ -8,4 +8,4 @@ if __name__ == "__main__":
 
     for (db, ht) in hashtags:
         run(('python', 'create_db.py', db, ht))
-        run(('python', 'main.py', db, ht))
+        run(('python', 'get_tweets.py', db, ht))

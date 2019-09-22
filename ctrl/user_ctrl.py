@@ -1,5 +1,5 @@
 from models import User
-from main import session, logger
+from get_tweets import session, logger
 
 
 class User_Ctrl():

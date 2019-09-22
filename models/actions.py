@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
-from main import Base
+from get_tweets import Base
 from .User import User
 from .Tweet import Tweet
 

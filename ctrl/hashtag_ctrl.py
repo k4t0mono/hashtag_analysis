@@ -1,5 +1,5 @@
 from models import Hashtag
-from main import session, logger
+from get_tweets import session, logger
 from .tweet_ctrl import Tweet_Ctrl
 
 

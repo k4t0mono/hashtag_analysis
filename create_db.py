@@ -2,7 +2,7 @@ import models
 from sys import argv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from main import Base
+from get_tweets import Base
 from utils import get_db_uri
 
 

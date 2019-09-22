@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
-from main import Base
+from get_tweets import Base
 
 
 class User(Base):
