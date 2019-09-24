@@ -13,7 +13,7 @@ if __name__ == "__main__":
     DBSession = sessionmaker(bind=engine_create)
     session = DBSession()
 
-    session.execute('drop database if exists {};'.format(database))
-    session.execute('create database {} CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ;'.format(database))
+    # session.execute('drop database if exists {};'.format(database))
+    # session.execute('create database {} CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ;'.format(database))
 
     Base.metadata.create_all(create_engine(get_db_uri(database)))

@@ -5,11 +5,14 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+jupyterlab = "*"
+numpy = "*"
 
 [packages]
 tweepy = ""
 sqlalchemy = "*"
 pymysql = "*"
+botometer = "*"
 
 [requires]
 python_version = "3.7"
