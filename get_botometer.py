@@ -1,10 +1,9 @@
 import logging
 import pickle
 from get_tweets import Base, session
-from utils import get_botometer
+from utils import get_botometer, get_connection
 from sys import argv
 from sqlalchemy import Column, ForeignKey, Float, String
-from utils import get_connection
 
 
 b, s_master = get_connection('ubot')
@@ -79,22 +78,29 @@ def get_universal_score(user):
 if __name__ == "__main__":
     logger.info('yo')
 
-    chunks = pickle.load(open('users_chunks.pkl', 'rb'))
-    if not len(chunks):
-        notify()
-        logger.info('nothing more to do')
-        exit(0)
+    users_todo = pickle.load(open('users_todo.pkl', 'rb'))
+    users_done = pickle.load(open('users_done.pkl', 'rb'))
 
-    chunk = chunks[0]
-    for u in chunk[:3]:
-        score, cat = get_universal_score(u)
+    n_done = 0
+    logger.info('I have {} users to get'.format(len(users_todo)))
+    logger.info('I\' done {} users'.format(len(users_done)))
 
-        logger.info('User {} : {:.2f} - {}'.format(u, score, cat))
+    for i, user in enumerate(users_todo[:250]):
+        if(i % 5 == 0):
+            print()
+            logger.info('I did {} more'.format(n_done))
+            s_master.commit()
+        
+        score, cat = get_universal_score(user)
 
-        ub = UBot(id=u, score=score, category=cat)
+        ub = UBot(id=user, score=score, category=cat)
         s_master.add(ub)
-        s_master.commit()
-    
-    pickle.dump(chunks[1:], open('users_chunks.pkl', 'wb'))
-    logger.info('chunk done')
+        print('.', end='')
+        n_done += 1
+
+    users_done.extend(users_todo[:250])
+
+    pickle.dump(users_todo[250:], open('users_todo.pkl', 'wr'))
+    pickle.dump(users_done, open('users_done.pkl', 'wr'))
+
     notify()
