@@ -1,6 +1,6 @@
 import logging
+import logging.config
 import pickle
-from get_tweets import Base, session
 from utils import get_botometer, get_connection
 from sys import argv
 from sqlalchemy import Column, ForeignKey, Float, String
@@ -57,7 +57,12 @@ Subject: %s
 
 
 def get_universal_score(user):
-    r = botometer.check_account(user)
+    try:
+        r = botometer.check_account(user)
+    except Exception as e:
+        logger.error(e)
+        return -1, -1
+
 
     score = r['scores']['universal']
 
@@ -85,22 +90,25 @@ if __name__ == "__main__":
     logger.info('I have {} users to get'.format(len(users_todo)))
     logger.info('I\' done {} users'.format(len(users_done)))
 
-    for i, user in enumerate(users_todo[:250]):
-        if(i % 5 == 0):
-            print()
-            logger.info('I did {} more'.format(n_done))
-            s_master.commit()
-        
-        score, cat = get_universal_score(user)
+    try:
+        for i, user in enumerate(users_todo[:250]):
+            if(i % 5 == 0):
+                logger.info('I did {} more'.format(n_done))
+                s_master.commit()
+            
+            score, cat = get_universal_score(user)
 
-        ub = UBot(id=user, score=score, category=cat)
-        s_master.add(ub)
-        print('.', end='')
-        n_done += 1
+            ub = UBot(id=user, score=score, category=cat)
+            s_master.add(ub)
+            n_done += 1
 
-    users_done.extend(users_todo[:250])
+    except Exception as e:
+        logger.error(e)
+    
+    finally:
+        users_done.extend(users_todo[:n_done])
 
-    pickle.dump(users_todo[250:], open('users_todo.pkl', 'wr'))
-    pickle.dump(users_done, open('users_done.pkl', 'wr'))
+        pickle.dump(users_todo[n_done:], open('users_todo.pkl', 'wb'))
+        pickle.dump(users_done, open('users_done.pkl', 'wb'))
 
-    notify()
+        notify()
