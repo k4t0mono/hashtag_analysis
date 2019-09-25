@@ -61,7 +61,8 @@ def get_universal_score(user):
         r = botometer.check_account(user)
     except Exception as e:
         logger.error(e)
-        return -1, -1
+        logger.error(user)
+        return 1, '?'
 
 
     score = r['scores']['universal']
@@ -77,7 +78,7 @@ def get_universal_score(user):
     elif (score > 0.8) and (score <= 1.0):
         return score, 4
     else:
-        return score, 99
+        return score, '?'
 
 
 if __name__ == "__main__":
@@ -91,7 +92,7 @@ if __name__ == "__main__":
     logger.info('I\' done {} users'.format(len(users_done)))
 
     try:
-        for i, user in enumerate(users_todo[:250]):
+        for i, user in enumerate(users_todo[420:]):
             if(i % 5 == 0):
                 logger.info('I did {} more'.format(n_done))
                 s_master.commit()
@@ -106,6 +107,8 @@ if __name__ == "__main__":
         logger.error(e)
     
     finally:
+        s_master.commit()
+        
         users_done.extend(users_todo[:n_done])
 
         pickle.dump(users_todo[n_done:], open('users_todo.pkl', 'wb'))
