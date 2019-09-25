@@ -9,8 +9,8 @@ class Tweet_Ctrl():
         self.user_ctrl = User_Ctrl()
 
     def new_tweet(self, status):
-        u = self.user_ctrl.get_user(status.user.id)
-
+        u = self.user_ctrl.new_user(status.user)
+        
         return Tweet(
             id=status.id,
             text=status.full_text,
