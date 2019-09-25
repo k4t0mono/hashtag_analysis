@@ -9,11 +9,11 @@ from utils import get_tweepy_api, get_db_uri, get_connection
 
 logging.config.fileConfig(
     fname='log.conf',
-    defaults={'logfilename': './logs/{}.log'.format(argv[2])}
+    defaults={'logfilename': './logs/{}.log'.format('redo_aa')}
 )
 logger = logging.getLogger('dev')
 
-Base, session = get_connection(argv[1])
+Base, session = get_connection('hta_aa')
 
 def chunkIt(seq, num):
     avg = len(seq) / float(num)
