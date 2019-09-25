@@ -15,12 +15,28 @@ logger = logging.getLogger('dev')
 tweepy = get_tweepy_api()
 
 
-def unique(items):
-    l = {}
-    for i in items:
-        l[i.id] = i
+def add_one(s, item):
+    try:
+        s.add(item)
+        s.commit()
 
-    return [ l[k] for k in l.keys() ]
+    except Exception as e:
+        logger.error(e)
+        s.rollback()
+
+def bulk_add(s, items):
+    try:
+        s.bulk_save_objects(items)
+        s.commit()
+
+    except Exception as e:
+        logger.error(e)
+        s.rollback()
+
+        for i in items:
+            add_one(s, i)
+
+
 
 if __name__ == "__main__":
     logger.info('yo')
@@ -53,20 +69,18 @@ if __name__ == "__main__":
         users_redo = [ x.user for x in tweets ]
         users_db = [ x[0] for x in s.query(User.id).all() ]
         users = [ x for x in users_redo if str(x.id) not in users_db ]
-        users = unique(users)
         logger.info('Got the users')
-
-        s.bulk_save_objects(users, update_changed_only=False)
+        
+        bulk_add(s, users)
         s.commit()
         logger.info('commited the users')
 
         tweets_db = [ x[0] for x in s.query(Tweet.id).filter(Tweet.user_id == None) ]
         tweets = [ x for x in tweets if str(x.id) in tweets_db ]
-        tweets = unique(tweets)
 
-        s.bulk_save_objects(tweets, update_changed_only=False)
-        # for t in tweets:
-        #     s.query(Tweet).filter(Tweet.id == t.id).update({'user_id': t.user.id})
+        # s.bulk_save_objects(tweets, update_changed_only=False)
+        for t in tweets:
+            s.query(Tweet).filter(Tweet.id == t.id).update({'user_id': t.user.id})
         s.commit()
         logger.info('commited tweets')
 
