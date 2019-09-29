@@ -2,7 +2,7 @@ import logging
 import logging.config
 import pickle
 from sys import argv
-from ctrl import Tweet_Ctrl
+from ctrl import Tweet_Ctrl, User_Ctrl
 from utils import get_tweepy_api, get_connection, notify
 from models import Tweet, User
 from subprocess import run
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     logger.info('yo')
 
     ctrl_tweet = Tweet_Ctrl()
+    ctrl_user = User_Ctrl()
     redo = pickle.load(open('redo.pkl', 'rb'))
 
     dbs = [1,3,5,6,7,8,9,11,12,14,15,16,17,18,20,21,22,23,24,25,26,27,28,29,30,31]
@@ -60,10 +61,15 @@ if __name__ == "__main__":
         logger.info('Got the tweets')
 
         tweets = []
+        users = {}
         for i, id_ in enumerate(tweets_db):
             try:
                 status = tweepy.get_status(id_, tweet_mode="extended")
                 tweets.append(ctrl_tweet.new_tweet(status))
+
+                if status.user.id not in users:
+                    u = ctrl_user.new_user(status.user)
+                    users[u.id] = u
 
             except Exception as e:
                 logger.error('Raise error on {}'.format(id_))
@@ -73,6 +79,7 @@ if __name__ == "__main__":
             if (i % 5) == 0:
                 logger.info('I had done {}'.format(i))
         
+        add_chunk(s2, [ u[1] for u in list(users.items()) ])
         add_chunk(s2, tweets)
 
         notify('Database {}'.format(db), 'It is done')

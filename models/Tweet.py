@@ -19,4 +19,4 @@ class Tweet(Base):
     hashtags = Column(Integer, default=0)
 
     user_id = Column(String(128), ForeignKey('user.id'))
-    user = relationship(User)
+    user = relationship('User', backref="tweets")

@@ -9,7 +9,7 @@ class Tweet_Ctrl():
         self.user_ctrl = User_Ctrl()
 
     def new_tweet(self, status):
-        u = self.user_ctrl.new_user(status.user)
+        # u = self.user_ctrl.new_user(status.user)
         
         return Tweet(
             id=status.id,
@@ -17,7 +17,7 @@ class Tweet_Ctrl():
             favorites=status.favorite_count,
             retweets=status.retweet_count,
             created_at=status.created_at,
-            user=u,
+            user_id=status.user.id,
             is_quote=status.is_quote_status,
             in_reply=status.in_reply_to_status_id,
             mentions=len(status.entities['user_mentions']),
