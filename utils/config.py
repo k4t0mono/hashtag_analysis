@@ -47,6 +47,5 @@ def get_connection(database, **kwargs):
     engine = create_engine(get_db_uri(database, **kwargs))
     base.metadata.bind = engine
     DBSession = sessionmaker(bind=engine)
-    session = DBSession()
 
-    return (base, session)
+    return (base, DBSession)
