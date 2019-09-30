@@ -34,10 +34,61 @@ def divide_chunks(l, n):
 def add_chunk(session, items):
     chunks = list(divide_chunks(items, 42))
     for i, chunk in enumerate(chunks):
-        for item in chunk:
-            session.add(item)
-        session.commit()
+        try :
+            for item in chunk:
+                session.add(item)
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            logger.error(e)
+            for item in chunk:
+                add_one(session, item)
+            
         logger.info('Chunk {} done'.format(i))
+
+
+def get_tweets(tweets_db):
+    tweets = []
+    users_dict = {}
+    for i, id_ in enumerate(tweets_db):
+        try:
+            status = tweepy.get_status(id_, tweet_mode="extended")
+            tweets.append(ctrl_tweet.new_tweet(status))
+
+            if status.user.id not in users_dict:
+                u = ctrl_user.new_user(status.user)
+                users_dict[u.id] = u
+
+        except Exception as e:
+            logger.error('Raise error on {}'.format(id_))
+            logger.error(e)
+            continue
+    
+        if (i % 5) == 0:
+            logger.info('I had done {}'.format(i))
+    
+
+    users = [ u[1] for u in list(users_dict.items()) ]
+    return users, tweets
+
+
+def process_db(db):
+    _, s = get_connection(db)
+
+    db2 = 'r_{}'.format(db)
+    _, s2 = get_connection(db2)
+    run(('python', 'create_db.py', db2, db2))
+
+    tweets_db = [ t.id for t in s.query(Tweet).all() ]
+    logger.info('Got the tweets from the database')
+
+    users, tweets = get_tweets(tweets_db)
+    
+    add_chunk(s2, users)
+    add_chunk(s2, tweets)
+
+    notify('Database {}'.format(db), 'It is done')
+
 
 if __name__ == "__main__":
     logger.info('yo')
@@ -46,42 +97,15 @@ if __name__ == "__main__":
     ctrl_user = User_Ctrl()
     redo = pickle.load(open('redo.pkl', 'rb'))
 
-    dbs = [1,3,5,6,7,8,9,11,12,14,15,16,17,18,20,21,22,23,24,25,26,27,28,29,30,31]
+    dbs = [3,5,6,7,8,9,11,12,14,15,16,17,18,20,21,22,23,24,25,26,27,28,29,30,31]
 
     for i in dbs:
         db = 'hta_{:02}'.format(i)
-        b, s = get_connection(db)
         logger.info('Working on database {}'.format(db))
 
-        db2 = 'r_{}'.format(db)
-        _, s2 = get_connection(db2)
-        run(('python', 'create_db.py', db2, db2))
-
-        tweets_db = [ t.id for t in s.query(Tweet).all() ]
-        logger.info('Got the tweets')
-
-        tweets = []
-        users = {}
-        for i, id_ in enumerate(tweets_db):
-            try:
-                status = tweepy.get_status(id_, tweet_mode="extended")
-                tweets.append(ctrl_tweet.new_tweet(status))
-
-                if status.user.id not in users:
-                    u = ctrl_user.new_user(status.user)
-                    users[u.id] = u
-
-            except Exception as e:
-                logger.error('Raise error on {}'.format(id_))
-                logger.error(e)
-                continue
+        try:
+            process_db(db)
+        except Exception as e:
+            logger.error(e)
         
-            if (i % 5) == 0:
-                logger.info('I had done {}'.format(i))
-        
-        add_chunk(s2, [ u[1] for u in list(users.items()) ])
-        add_chunk(s2, tweets)
-
-        notify('Database {}'.format(db), 'It is done')
-
     notify('Redo Done', 'Everything should be normal now')
