@@ -47,19 +47,34 @@ def get_universal_score(result):
     else:
         return score, '?'
 
+def add_one(item):
+    try:
+        SESSION.add(item)
+        SESSION.commit()
+    except Exception as e:
+        logger.error(e)
+        SESSION.rollback()
 
 def process_chunk(chunk):
+    users = []
     for user, result in botometer.check_accounts_in(chunk):
         score, cat = get_universal_score(result)
-        logger.info('Got: {} - {}'.format(user, cat))
+        users.append(UBot(id=user, score=score, category=cat))
 
-        try:
-            SESSION.add(UBot(id=user, score=score, category=cat))
-        except Exception as e:
-            logger.error(e)
-            SESSION.rollback()
+    logger.info('got users')
 
-    SESSION.commit()
+    try:
+        for u in users:
+            SESSION.add(u)
+        SESSION.commit()
+    except Exception as e:
+        logger.error(e)
+        SESSION.rollback()
+
+        for u in users:
+            add_one(u)
+    finally:
+        logger.info('saved users')
 
 if __name__ == "__main__":
     logger.info('yo')
