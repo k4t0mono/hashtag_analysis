@@ -7,12 +7,16 @@ verify_ssl = true
 pylint = "*"
 jupyterlab = "*"
 numpy = "*"
+matplotlib = "*"
+ipympl = "*"
 
 [packages]
 tweepy = ""
 sqlalchemy = "*"
 pymysql = "*"
 botometer = "*"
+numpy = "*"
+sklearn = "*"
 
 [requires]
 python_version = "3.7"

@@ -1,12 +1,16 @@
 import logging
 import logging.config
 import pickle
-from utils import get_botometer, get_connection
+from utils import get_botometer, get_connection, notify
 from sys import argv
 from sqlalchemy import Column, ForeignKey, Float, String
+from datetime import datetime
 
 
-b, s_master = get_connection('ubot')
+b, SM = get_connection('ubot')
+SESSION = SM()
+
+
 class UBot(b):
     __tablename__ = 'ubot'
     
@@ -22,50 +26,13 @@ logger = logging.getLogger('dev')
 botometer = get_botometer()
 
 
-def notify():
-    import smtplib
-    import json
-    from datetime import datetime
-
-    gmail_user = 'breno.cardoso@estudante.ufla.br'
-    gmail_password = 'iewjbnmnpujoavsm'
-
-    sent_from = gmail_user
-    to = ['k4t0mono@gmail.com']
-
-    subject = 'Done botometer chunk'
-    body = 'The script is done :3'
-
-    email_text = """\
-From: %s
-To: %s
-Subject: %s
-
-%s
-""" % (sent_from, ", ".join(to), subject, body)
-
-    try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.ehlo()
-        server.login(gmail_user, gmail_password)
-        server.sendmail(sent_from, to, email_text)
-        server.close()
-
-        print('Email sent!')
-    except:
-        print('Something went wrong...')
+def divide_chunks(l, n): 
+    for i in range(0, len(l), n):  
+        yield l[i:i + n] 
 
 
-def get_universal_score(user):
-    try:
-        r = botometer.check_account(user)
-    except Exception as e:
-        logger.error(e)
-        logger.error(user)
-        return 1, '?'
-
-
-    score = r['scores']['universal']
+def get_universal_score(result):
+    score = result['scores']['universal']
 
     if (score <= 0.2):
         return score, 0
@@ -81,37 +48,53 @@ def get_universal_score(user):
         return score, '?'
 
 
+def process_chunk(chunk):
+    for user, result in botometer.check_accounts_in(chunk):
+        score, cat = get_universal_score(result)
+        logger.info('Got: {} - {}'.format(user, cat))
+
+        try:
+            SESSION.add(UBot(id=user, score=score, category=cat))
+        except Exception as e:
+            logger.error(e)
+            SESSION.rollback()
+
+    SESSION.commit()
+
 if __name__ == "__main__":
     logger.info('yo')
 
     users_todo = pickle.load(open('users_todo.pkl', 'rb'))
     users_done = pickle.load(open('users_done.pkl', 'rb'))
 
-    n_done = 0
     logger.info('I have {} users to get'.format(len(users_todo)))
-    logger.info('I\' done {} users'.format(len(users_done)))
+    logger.info('I have done {} users'.format(len(users_done)))
 
+    CHUNK_SIZE = 5
+    chunks_base = list(divide_chunks(users_todo, 10_000))
+    chunks = list(divide_chunks(chunks_base[0], CHUNK_SIZE))
+    n_chunks = len(chunks)
+
+    n_done = 0
     try:
-        for i, user in enumerate(users_todo[420:]):
-            if(i % 5 == 0):
-                logger.info('I did {} more'.format(n_done))
-                s_master.commit()
-            
-            score, cat = get_universal_score(user)
+        for i, chunk in enumerate(chunks):
+            process_chunk(chunk)
+            users_done.extend(chunk)
+            n_done += CHUNK_SIZE
 
-            ub = UBot(id=user, score=score, category=cat)
-            s_master.add(ub)
-            n_done += 1
+            logger.info('chunk {:04}/{:04} done'.format(i, n_chunks))
+
+        logger.info('Done for today :3')
 
     except Exception as e:
         logger.error(e)
+        notify
     
     finally:
-        s_master.commit()
-        
-        users_done.extend(users_todo[:n_done])
-
         pickle.dump(users_todo[n_done:], open('users_todo.pkl', 'wb'))
         pickle.dump(users_done, open('users_done.pkl', 'wb'))
 
-        notify()
+        notify(
+            'Botometer of {}'.format(datetime.now()),
+            'I got {} today'.format(n_done)
+        )
