@@ -58,8 +58,13 @@ def add_one(item):
 def process_chunk(chunk):
     users = []
     for user, result in botometer.check_accounts_in(chunk):
-        score, cat = get_universal_score(result)
-        users.append(UBot(id=user, score=score, category=cat))
+        try:
+            score, cat = get_universal_score(result)
+            users.append(UBot(id=user, score=score, category=cat))
+        except Exception as e:
+            logger.error(e)
+            logger.error(result)
+            continue
 
     logger.info('got users')
 
