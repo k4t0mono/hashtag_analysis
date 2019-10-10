@@ -18,8 +18,11 @@ def get_botometer():
         access_token=HA_AT, access_token_secret=HA_TS
     )
 
+    botometer_api_url = 'https://botometer-pro.p.mashape.com'
     return botometer.Botometer(
-        wait_on_ratelimit=True, rapidapi_key=HA_BO, **twitter_auth
+        botometer_api_url=botometer_api_url,
+        wait_on_ratelimit=True, rapidapi_key=HA_BO,
+        **twitter_auth
     )
 
 def get_tweepy_api():

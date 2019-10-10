@@ -91,7 +91,7 @@ if __name__ == "__main__":
     logger.info('I have done {} users'.format(len(users_done)))
 
     CHUNK_SIZE = 5
-    chunks_base = list(divide_chunks(users_todo, 10_000))
+    chunks_base = list(divide_chunks(users_todo, 20_000))
     chunks = list(divide_chunks(chunks_base[0], CHUNK_SIZE))
     n_chunks = len(chunks)
 
