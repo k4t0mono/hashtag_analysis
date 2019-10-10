@@ -17,6 +17,9 @@ pymysql = "*"
 botometer = "*"
 numpy = "*"
 sklearn = "*"
+gensim = "*"
+nltk = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"
