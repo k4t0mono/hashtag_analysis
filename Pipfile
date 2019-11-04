@@ -17,6 +17,8 @@ pymysql = "*"
 botometer = "*"
 numpy = "*"
 sklearn = "*"
+seaborn = "*"
+tensorflow = "*"
 
 [requires]
 python_version = "3.7"
